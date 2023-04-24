@@ -87,13 +87,27 @@ class ChainReactionViewController2: UIViewController {
         visiblyDisableBtn()
     }
     
+    func generateRandom(maxBlocks : Int) -> Int {
+        let blocks = 0...maxBlocks
+        return Int.random(in: blocks)
+    }
+    
+    func addBomb(){
+        let random = generateRandom(maxBlocks: 99)
+        if (x?.contains(random) == false){
+            x?.append(random)
+        }else{
+            addBomb()
+        }
+    }
+    
     func createData(maxBlocks : Int) {
-        var blocks = 0...maxBlocks
+        let blocks = 0...maxBlocks
         
         for bombs in 0...numberOfBombs  {
-            x?.append(Int.random(in: blocks))
+            addBomb()
         }
-        
+
         for block in blocks {
             if let X = x {
                 if ((X.contains(block) ) ){
@@ -150,7 +164,7 @@ extension ChainReactionViewController2 : UICollectionViewDelegate, UICollectionV
         
         cell.lbl.text = blockArray?[indexPath.row].number
         cell.lbl.textColor = .white
-        //        cell.coveringView.alpha = 1
+//                cell.coveringView.alpha = 0
         //        cell.coveringView.backgroundColor = .gray
         cell.backgroundColor = UIColor.black
         return cell
@@ -159,22 +173,31 @@ extension ChainReactionViewController2 : UICollectionViewDelegate, UICollectionV
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         generateHaptic()
         if let cell = collectionView.cellForItem(at: indexPath) as? BlockCell {
-            
-            cell.coveringView.alpha = 0
-            if (blockArray?[indexPath.row].number == ""){
-                clearBlanks(index: indexPath)
-            }
-            else if (blockArray?[indexPath.row].number == "X"){
-                if (flagSetOn){
-                    cell.lbl.text = "🔴"
-                    numberOfBombsPlaced += 1
-                    X?.append(indexPath.row)
-                    checkIfGameIsOver()
-                }else{
-                    gameOverAlert()
+            if (cell.lbl.text == "🔴"){
+                
+            }else{
+                cell.coveringView.alpha = 0
+                if (blockArray?[indexPath.row].number == ""){
+                    clearBlanks(index: indexPath)
                 }
+                else if (blockArray?[indexPath.row].number == "X"){
+                    if (flagSetOn){
+                        cell.lbl.text = "🔴"
+                        numberOfBombsPlaced += 1
+                        X?.append(indexPath.row)
+                        checkIfGameIsOver()
+                    }else{
+                        gameOverAlert()
+                    }
+                }else {
+                    if (flagSetOn){
+                        cell.lbl.text = "🔴"
+                        numberOfBombsPlaced += 1
+                        X?.append(indexPath.row)
+                    }
+                }
+                cell.coveringView.alpha = 0
             }
-            cell.coveringView.alpha = 0
         }
         visiblyEnableBtn()
         XLbl.text = String(describing: numberOfBombsPlaced)
